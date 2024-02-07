@@ -1,0 +1,16 @@
+th, td, caption {
+    border: 1px solid #333;
+    border-collapse: separate;
+    padding: 0.5rem;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+th {
+    background-color: white;
+    border: 3px solid #333;
+    position: sticky;
+    top: 0; 
+}

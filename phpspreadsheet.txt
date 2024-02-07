@@ -1,0 +1,75 @@
+in xampp > php > php.ini, uncomment
+extension=gd
+extension=zip
+
+
+then,
+> composer require phpoffice/phpspreadsheet
+
+
+WRITE
+In index.php,
+<button onclick="location.href='server.php'">Export</button>
+
+In server.php,
+
+require 'vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
+
+$sheet->setCellValue('A1', '移轉單別');
+$sheet->setCellValue('B1', '移轉單號');
+
+$filename = 'defect-' . time() . '.xlsx';
+
+header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="'.$filename.'"');
+header('Cache-Control: max-age=0');
+
+$writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+$writer->save('php://output');
+
+
+------------
+READ
+
+<?php
+require 'vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+$spreadsheet = new Spreadsheet();
+
+$inputFileType = 'Xlsx';
+$inputFileName = './mysheet.xlsx';
+
+/**  Create a new Reader of the type defined in $inputFileType  **/
+$reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
+/**  Advise the Reader that we only want to load cell data  **/
+$reader->setReadDataOnly(true);
+
+$worksheetData = $reader->listWorksheetInfo($inputFileName);
+
+foreach ($worksheetData as $worksheet) {
+
+$sheetName = $worksheet['worksheetName'];
+
+echo "<h4>$sheetName</h4>";
+/**  Load $inputFileName to a Spreadsheet Object  **/
+$reader->setLoadSheetsOnly($sheetName);
+$spreadsheet = $reader->load($inputFileName);
+
+$worksheet = $spreadsheet->getActiveSheet();
+
+$cell_val = $worksheet->getCell('P2')->getValue();
+
+print_r($worksheet->toArray());
+
+}
+
+
